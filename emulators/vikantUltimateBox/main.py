@@ -1,6 +1,20 @@
 import serial
 
-
+def hex2bin():
+    file1 = open("mem_hex.dat","rb")
+    file = open("mem.dat","wb+")
+    
+    i = 0
+    while i < 1048576:
+        hex = file1.read(2)
+        dec = int(hex,16)
+        print(hex)
+        print(dec)
+        file.write(bytes([ord(chr(dec))]))
+        i = i +1
+        
+    file1.close()
+    file.close()
 
 def writeStrings(s,lines):
     sep = chr(13)+chr(10)
@@ -16,14 +30,15 @@ def writeData(s,data):
     s.write(str.encode( sep+term ))
 
 def writeMemory(addr,data,blockSize=256):
-    file = open("mem1.dat","b+")
-    file.seek(addr*blockSize)
-    file.write(data);
-    file.close()
 
+    file = open("mem.dat","w+")
+    file.seek(addr*blockSize)
+    #file.write(str.encode(data))
+    file.write(data)
+    file.close()
     
 def readMemory(addr, blockSize=256):
-    file = open("mem1.dat","rb")
+    file = open("mem.dat","rb")
     file.seek(addr*blockSize)
     data = file.read(blockSize);
     file.close()
@@ -32,15 +47,14 @@ def readMemory(addr, blockSize=256):
 def getAddr(cmd):
     parts = cmd.split(" ")
     addr = int(parts[1]+parts[2],16)
-    
     #print(cmd)
     #print(parts)
     #print(addr)
     #print("-----------------------")
-        
     return addr
     
 def parseCommand(s,cmd):
+    
     if cmd == "model":
         writeStrings(s,[cmd,"UltimateBox 1000"])
         
@@ -79,21 +93,21 @@ def parseCommand(s,cmd):
         
         
     elif cmd[:5] == "bws40":
-        addr = getAddr(cmd)
-        #writeData(s,str.encode(cmd+"@"))
+        addr = getAddr(cmd[:11])
+        writeMemory(addr,cmd[11:])
+        MODE = 1
         
     elif cmd[:5] == "bread":
         addr = getAddr(cmd)
         data = readMemory(addr)
         writeData(s,str.encode(cmd+"@")+data)
 
-
     else:
         print( "unknown command: "+cmd )
     
 def main():
 
-    portIn  = "com12"
+    portIn  = "com129"
 
     
     port = serial.Serial(
@@ -109,15 +123,27 @@ def main():
 
     while True:
         for c in port.read():
-            if c != 13:
-                cmd = cmd + chr(c)
-                
-            if c == 13:
+        
+            if (c == 13 and cmd[:3] != "bws"):
                 parseCommand(port, cmd)
                 cmd = ""
                 
+            elif (cmd[:3] == "bws" and len(cmd) == 268):
+                parseCommand(port, cmd)
+                cmd = chr(c)
+                
+            else:
+                cmd = cmd + chr(c)
+                
     port.close()
 
-main()
+
+writeMemory(3,"c",1)
+writeMemory(1,"A",1)
+writeMemory(2,"b",1)
+
+
+#hex2bin()
+#main()
 
 
