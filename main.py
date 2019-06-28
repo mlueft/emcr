@@ -23,7 +23,7 @@ def getCardReader(type):
 def main():
 
     reader   = "vub"
-    port     = "com128"
+    port     = "com12"
     action   = "load"
     dataFile = "data.bin"
     

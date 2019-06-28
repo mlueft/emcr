@@ -30,10 +30,8 @@ def writeData(s,data):
     s.write(str.encode( sep+term ))
 
 def writeMemory(addr,data,blockSize=256):
-
-    file = open("mem.dat","w+")
+    file = open("mem.dat","r+")
     file.seek(addr*blockSize)
-    #file.write(str.encode(data))
     file.write(data)
     file.close()
     
@@ -107,7 +105,7 @@ def parseCommand(s,cmd):
     
 def main():
 
-    portIn  = "com129"
+    portIn  = "com11"
 
     
     port = serial.Serial(
@@ -138,12 +136,10 @@ def main():
     port.close()
 
 
-writeMemory(3,"c",1)
-writeMemory(1,"A",1)
-writeMemory(2,"b",1)
-
-
+#writeMemory(3,"c",1)
+#writeMemory(1,"A",1)
+#writeMemory(2,"b",1)
 #hex2bin()
-#main()
+main()
 
 

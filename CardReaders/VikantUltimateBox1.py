@@ -1,4 +1,5 @@
 import CardReaders.CardReader
+import Cards
 import serial, time
 
 class VikantUltimateBox1(CardReaders.CardReader.CardReader):
@@ -57,13 +58,17 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
         while id >= 0:
         
             self.writeString("id"+str(id))
-            time.sleep(1)
+            #time.sleep(1)
             answer = self.readString()
             
             data.append(answer)
             
             id = id -1
         
+        print(dir(Cards))
+        
+        for card in Cards:
+            print( card.ID )
         
         
         if card == None:
