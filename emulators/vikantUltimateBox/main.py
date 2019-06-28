@@ -42,10 +42,8 @@ def writeData(s,data):
     s.write(str.encode( sep+term ))
 
 def writeMemory(addr,data,blockSize=256):
-
     file = open("mem.dat","rb+")
     file.seek(addr*blockSize)
-    #for i in data:
     file.write( bytes(data) )
     file.close()
     
@@ -59,10 +57,6 @@ def readMemory(addr, blockSize=256):
 def getAddr(cmd):
     parts = cmd.split(" ")
     addr = int(parts[1]+parts[2],16)
-    #print(cmd)
-    #print(parts)
-    #print(addr)
-    #print("-----------------------")
     return addr
     
 def parseCommand(s,cmd):
@@ -123,7 +117,7 @@ def parseCommand(s,cmd):
     
 def main():
 
-    portIn  = "com129"
+    portIn  = "com11"
 
     
     port = serial.Serial(
@@ -153,17 +147,6 @@ def main():
                 
     port.close()
 
-
-#for i in range(0,1024):
-#    data = readMemory(i)
-#    writeMemory(i,data)
-
-#writeMemory(3,"c",1)
-#writeMemory(1,"A",1)
-#writeMemory(2,"b",1)
-
-
-#hex2bin()
 main()
 
 
