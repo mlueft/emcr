@@ -82,3 +82,13 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
                 if data[-1:] == self.__terminator:
                     return data[:-1]
         
+    def erase(self):
+        card = self.getCard()
+        
+        code = card.gcErease()
+        
+        self.writeString(code)
+        
+        result = self.readString()
+        
+        print(result)

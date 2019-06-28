@@ -60,6 +60,12 @@ def main():
     
     card = cr.getCard()
     
+    
+    
+    cr.erase()
+    
+    
+    
     cr.disconnect()
     
 main()
