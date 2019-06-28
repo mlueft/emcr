@@ -1,4 +1,5 @@
 import CardReaders.CardReader
+from Cards.VikantUltimateCard1 import *
 import Cards
 import serial, time
 
@@ -61,18 +62,15 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
             #time.sleep(1)
             answer = self.readString()
             
-            data.append(answer)
+            data.append(answer[3:-2])
             
             id = id -1
         
-        print(dir(Cards))
-        
-        for card in Cards:
-            print( card.ID )
+        if VikantUltimateCard1.isId(data):
+            return VikantUltimateCard1()
         
         
-        if card == None:
-            raise Exception("Card not recognized.")
+        return None
 
     def writeString(self,line):
         self.__con.write(str.encode( line+chr(13) ))

@@ -28,10 +28,10 @@ def main():
     dataFile = "data.bin"
     
     try:
-         opts, args = getopt.getopt( sys.argv[1:], "hc:p:dlsf" )
+        opts, args = getopt.getopt( sys.argv[1:], "hc:p:dlsf" )
     except getopt.GetoptError:
-         showHelp()
-         sys.exit(2)
+        showHelp()
+        sys.exit(2)
 
     for opt, arg in opts:
         if  opt in ("-h"):
@@ -59,6 +59,8 @@ def main():
     cr.identify()
     
     card = cr.getCard()
+    
+    card.sayHello()
     
     cr.disconnect()
     
