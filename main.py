@@ -23,7 +23,7 @@ def getCardReader(type):
 def main():
 
     reader   = "vub"
-    port     = "com12"
+    port     = "com1"
     action   = "load"
     dataFile = "data.bin"
     
@@ -57,13 +57,13 @@ def main():
     cr.connect(port)
     
     cr.identify()
+
+    #cr.erase()
+    #cr.uploadFile("card.dmp")
     
-    card = cr.getCard()
-    
-    
-    cr.erase()
-    
+    cr.downloadFile("card1.dmp")
     
     cr.disconnect()
-    
+ 
+
 main()

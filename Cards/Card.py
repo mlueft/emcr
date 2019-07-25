@@ -5,4 +5,3 @@ class Card(object):
         pass
         
     
-    

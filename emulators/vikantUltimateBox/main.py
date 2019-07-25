@@ -48,6 +48,7 @@ def writeMemory(addr,data,blockSize=256):
     file.close()
     
 def readMemory(addr, blockSize=256):
+    print("read memory")
     file = open("mem.dat","rb")
     file.seek(addr*blockSize)
     data = file.read(blockSize);
@@ -60,6 +61,9 @@ def getAddr(cmd):
     return addr
     
 def parseCommand(s,cmd):
+    
+    #print( cmd )
+    #print(len(cmd))
     
     tcmd = toString(cmd)
 
@@ -115,6 +119,12 @@ def parseCommand(s,cmd):
     else:
         print( "unknown command: "+tcmd )
     
+def f3(list):
+        string = ""
+        for character in map(chr, list):
+            string = string + character
+        return string
+        
 def main():
 
     portIn  = "com11"
@@ -131,20 +141,31 @@ def main():
 
     cmd = []
 
+    qty = 0
+    i = 0
     while True:
+
+        #if i > 0:
+        #    print(f3(cmd))
+        #    i = 0
+        
         for c in port.read():
         
             if (c == 13 and cmd[:3] != toAscii("bws")):
+                qty = 0
                 parseCommand(port, cmd)
                 cmd = []
                 
             elif (cmd[:3] == toAscii("bws") and len(cmd) == 268):
+                qty = qty +1
                 parseCommand(port, cmd)
                 cmd = [c]
+                #print( "qty:"+str(qty ))
                 
             else:
+                i = 1
                 cmd.append(c)
-                
+            
     port.close()
 
 main()
