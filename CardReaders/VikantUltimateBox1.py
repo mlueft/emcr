@@ -128,18 +128,15 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
         self.__con.write( str.encode("bws40 "+addr)+data+str.encode(chr(13)) )
         
     def uploadFile(self,fileName,blockSize=256):
-        #print("W")
         card= self.getCard()
         
         file = open(fileName, "rb")
         data = " "
         addr = 0
         while len(data) > 0:
-        #while addr < 105:
             data = file.read(blockSize)
-            #print( str(addr) )
             addrStr = ("00"+str(hex((addr>>8)&255))[2:])[-2:] +" "+ ("00"+str(hex((addr)&255))[2:])[-2:]
-            if card.isWriteable(addr) and len(data) == 256:
+            if card.isWriteable(addr) and len(data) > 0:
                 self.writeData(addrStr,data)
             addr = addr + 1
             time.sleep(0.04)

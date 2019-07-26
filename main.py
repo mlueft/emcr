@@ -62,6 +62,7 @@ def main():
     #cr.uploadFile("card.dmp")
     
     cr.downloadFile("card1.dmp")
+    cr.writeFile("data.bin")
     
     cr.disconnect()
  

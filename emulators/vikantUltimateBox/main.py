@@ -1,20 +1,30 @@
 import serial
 
+LINE_ENDING = chr(13)+chr(10)
+TERMINATOR = chr(62)
+MEMORY_FILE =  "data.bin"
+
+## Converts a string into a list of its ascii codes.
+#
 def toAscii(text):
     data = []
     for char in text:
         data.append(ord(char)) 
     return data
-    
+   
+## Converts a list of ascii codes into a string.
+#   
 def toString(data):
     res = ""
     for c in data:
         res = res + chr(c)
     return res
-    
+  
+##
+#  
 def hex2bin():
     file1 = open("mem_hex.dat","rb")
-    file = open("mem.dat","wb+")
+    file = open("data.bin","wb+")
     
     i = 0
     while i < 1048576:
@@ -28,45 +38,55 @@ def hex2bin():
     file1.close()
     file.close()
 
+## Writes strings to the serial connection.
+#
 def writeStrings(s,lines):
-    sep = chr(13)+chr(10)
-    term = chr(62)
+    global LINE_ENDING, TERMINATOR
     for l in lines:
-        s.write(str.encode( l +sep ))
-    s.write(str.encode( term ))
-    
+        s.write(str.encode( l + LINE_ENDING ))
+    s.write(str.encode( TERMINATOR ))
+  
+## Writes data to the serial connection.
+#  
 def writeData(s,data):
-    sep = chr(13)+chr(10)
-    term = chr(62)
-    s.write(data)
-    s.write(str.encode( sep+term ))
+    global LINE_ENDING, TERMINATOR
+    s.write(data + str.encode( LINE_ENDING ) )
+    s.write(str.encode( TERMINATOR ))
 
+## Writes data to the memory file
+#
 def writeMemory(addr,data,blockSize=256):
-    file = open("mem.dat","rb+")
+    global MEMORY_FILE
+    file = open(MEMORY_FILE,"rb+")
     file.seek(addr*blockSize)
     file.write( bytes(data) )
     file.close()
-    
+  
+## Reads data from the memory file.
+#  
 def readMemory(addr, blockSize=256):
-    print("read memory")
-    file = open("mem.dat","rb")
+    global MEMORY_FILE
+    file = open(MEMORY_FILE,"rb")
     file.seek(addr*blockSize)
     data = file.read(blockSize);
     file.close()
     return data
 
+## Converts a addr(hex representation) to the int value.
+#
 def getAddr(cmd):
     parts = cmd.split(" ")
     addr = int(parts[1]+parts[2],16)
     return addr
-    
+
+## Parses a received commando.
+#
 def parseCommand(s,cmd):
     
-    #print( cmd )
-    #print(len(cmd))
-    
-    tcmd = toString(cmd)
+    tcmd = toString(cmd[:-1])
 
+    print( "command received: "+ tcmd[0:15] + " ..." )
+    
     if tcmd == "model":
         writeStrings(s,[tcmd,"UltimateBox 1000"])
         
@@ -108,7 +128,7 @@ def parseCommand(s,cmd):
         addr = getAddr(tcmd[:11])
         writeMemory(
             addr,
-            cmd[11:]
+            cmd[11:-1]
         )
         
     elif tcmd[:5] == "bread":
@@ -119,17 +139,12 @@ def parseCommand(s,cmd):
     else:
         print( "unknown command: "+tcmd )
     
-def f3(list):
-        string = ""
-        for character in map(chr, list):
-            string = string + character
-        return string
-        
+##
+#
 def main():
 
     portIn  = "com11"
 
-    
     port = serial.Serial(
         portIn,
         115200,
@@ -137,36 +152,22 @@ def main():
         parity=serial.PARITY_EVEN,
         rtscts=1
     )
-    port.set_buffer_size(rx_size = 12800, tx_size = 12800)
-
+    
     cmd = []
-
-    qty = 0
-    i = 0
     while True:
-
-        #if i > 0:
-        #    print(f3(cmd))
-        #    i = 0
-        
         for c in port.read():
-        
+            cmd.append(c)
+            
             if (c == 13 and cmd[:3] != toAscii("bws")):
-                qty = 0
                 parseCommand(port, cmd)
                 cmd = []
                 
             elif (cmd[:3] == toAscii("bws") and len(cmd) == 268):
-                qty = qty +1
                 parseCommand(port, cmd)
-                cmd = [c]
-                #print( "qty:"+str(qty ))
-                
-            else:
-                i = 1
-                cmd.append(c)
+                cmd = []
             
     port.close()
+
 
 main()
 
