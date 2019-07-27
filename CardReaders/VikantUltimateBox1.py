@@ -91,7 +91,7 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
                 if self.__con.in_waiting == 0 and data != "":
                     return data[:-1]
         
-    def readData(self, blockSize = 257):
+    def readData(self, blockSize = 256):
         data = []
         i = 0
         while True:

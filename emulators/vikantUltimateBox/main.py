@@ -1,9 +1,26 @@
 import serial
+import os
 
 LINE_ENDING = chr(13)+chr(10)
 TERMINATOR = chr(62)
 MEMORY_FILE =  "data.bin"
 
+##
+#
+def createDataFile():
+    global MEMORY_FILE
+    
+    if not os.path.isfile(MEMORY_FILE):
+        file = open( MEMORY_FILE, "wb" )
+        print("Creating memory file ...")
+        for i in range(0,1048576):
+            file.write(b'0')
+            
+        file.close() 
+        print("Memory file created.")
+        
+    pass
+    
 ## Converts a string into a list of its ascii codes.
 #
 def toAscii(text):
@@ -57,6 +74,7 @@ def writeData(s,data):
 #
 def writeMemory(addr,data,blockSize=256):
     global MEMORY_FILE
+    #createDataFile()
     file = open(MEMORY_FILE,"rb+")
     file.seek(addr*blockSize)
     file.write( bytes(data) )
@@ -66,6 +84,7 @@ def writeMemory(addr,data,blockSize=256):
 #  
 def readMemory(addr, blockSize=256):
     global MEMORY_FILE
+    #createDataFile()
     file = open(MEMORY_FILE,"rb")
     file.seek(addr*blockSize)
     data = file.read(blockSize);
@@ -168,7 +187,7 @@ def main():
             
     port.close()
 
-
+createDataFile()
 main()
 
 
