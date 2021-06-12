@@ -1,6 +1,7 @@
 import os,getopt,sys
 import CardReaders as CR
 
+
 def showHelp():
     print("")
     print("-c       Defined the card reader.")
@@ -19,16 +20,18 @@ def getCardReader(type):
     
     raise Exception("Card reader of type('"+type+"') not supported.")
 
+cr = None
     
 def main():
-
+    global cr
+    
     reader   = "vub"
-    port     = "com12"
+    port     = "com1"
     action   = "load"
     dataFile = "data.bin"
     
     try:
-        opts, args = getopt.getopt( sys.argv[1:], "hc:p:dlsf" )
+        opts, args = getopt.getopt( sys.argv[1:], "hc:p:dlsf:" )
     except getopt.GetoptError:
         showHelp()
         sys.exit(2)
@@ -52,18 +55,47 @@ def main():
         elif opt in ("-f"):
             dataFile = arg
 
+    #print "Reader: "+reader
+    #print "port: "+port
+    #print "action: "+ action
+    #print "dataFile: "+ dataFile
+    
+    
     cr = getCardReader(reader)
     
     cr.connect(port)
     
+    print "identify card reader:"
     cr.identify()
 
-    cr.erase()
-    cr.uploadFile("card.bin")
-    cr.downloadFile("card1.bin")
+    print ""
+    print "has card:"
+    print str(cr.hasCard())
+    
+    print ""
+    print "identify card:"
+    cr.identifyCard()
+    
+    
+    #if action == "delete":
+    #    cr.erase()
+    #elif action == "load":
+    #    cr.downloadFile(dataFile)
+    #elif action == "store":
+    #    cr.uploadFile(dataFile)
+    #else:
+    #    print "action nicht erkannt."
+     
+     
+    #cr.erase()
+    cr.downloadFile(dataFile)
+    
 
     
-    cr.disconnect()
  
-
-main()
+try:
+    main()
+finally:
+    cr.disconnect()
+    print "disconnected"
+    

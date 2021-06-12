@@ -1,7 +1,9 @@
 import CardReaders.CardReader
 from Cards.VikantUltimateCard1 import *
+from Cards.BrotherCard51 import *
 import Cards
 import serial, time
+import os
 
 class VikantUltimateBox1(CardReaders.CardReader.CardReader):
 
@@ -37,9 +39,11 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
         self.writeString("model")
         answer1 = self.readString()
         
+        print "answer0: "+ answer0
         if "UltimateBox" not in answer0:
             raise Exception("Card reader not recognized.("+answer0+")")
             
+        print "answer1: "+ answer1
         if "UltimateBox" not in answer1:
             raise Exception("Card reader not recognized.("+answer1+")")
     
@@ -53,13 +57,7 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
             
         return True
     
-    def getCard(self):
-        if not self.hasCard():
-            return None
-            
-        if self.__card != None:
-            return self.__card
-        
+    def identifyCard(self):
         id = 6
         
         data = []
@@ -74,20 +72,39 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
             id = id -1
 
         print(data)
+        return data
+        
+    def getCard(self):
+        if not self.hasCard():
+            return None
+            
+        if self.__card != None:
+            return self.__card
+        
+        id = 6
+        
+        data = self.identifyCard()
+        
         if VikantUltimateCard1.isId(data):
             self.__card = VikantUltimateCard1()
+        elif BrotherCard51.isId(data):
+            self.__card = BrotherCard51()
         
+        print ("found card:"+ self.__card.getName() )
         
         return self.__card
 
     def writeString(self,line):
+        print( "command sending: "+ line )
         self.__con.write( str.encode(line+chr(13),'ascii' ))
         
     def readString(self):
         data = ""
         while True:
             for c in self.__con.read():
-                data = data + chr(c)
+                #print type(c)
+                #data = data + chr(c)
+                data = data + c
                 if self.__con.in_waiting == 0 and data != "":
                     return data[:-1]
         
@@ -100,10 +117,11 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
                 data.append(d)
                 if i >= 14+blockSize:
                     return data[12:-3]
-                    
+                #time.sleep(0.04)
                 i = i +1
 
     def erase(self):
+        print("erase")
         card = self.getCard()
         code = card.gcErease()
         self.writeString(code)
@@ -111,29 +129,41 @@ class VikantUltimateBox1(CardReaders.CardReader.CardReader):
         print(result)
         
     def downloadFile(self, fileName):
+        print("downloadFile")
+        
+        if os.path.exists(fileName):
+            os.remove(fileName)
+  
+        #file = open(fileName,"a")
+        #file.close()
+        #time.sleep(0.5)
+        
         card = self.getCard()
         codes = card.gcDump()
-        file = open(fileName,"rb+")
+        file = open(fileName,"w+b")
         
         for i in codes:
             self.writeString(i)
-            print(i)
             data = self.readData()
-            file.write(bytes(data))
+            file.write(bytearray(data))
+            time.sleep(0.04)
             
         file.close()
             
     def writeData(self,addr,data):
+        print( "command sending: "+ str(addr) +" "+ str(data[0:15]) + " ..." )
         #self.__con.write( str.encode("bws40 "+addr) )
         self.__con.write( str.encode("bws40 "+addr)+data+str.encode(chr(13)) )
         
     def uploadFile(self,fileName,blockSize=256):
+        print("uploadFile")
         card= self.getCard()
         
         file = open(fileName, "rb")
         data = " "
         addr = 0
-        while len(data) > 0:
+        #while len(data) > 0:
+        while addr < 4096:
             data = file.read(blockSize)
             addrStr = ("00"+str(hex((addr>>8)&255))[2:])[-2:] +" "+ ("00"+str(hex((addr)&255))[2:])[-2:]
             if card.isWriteable(addr) and len(data) > 0:

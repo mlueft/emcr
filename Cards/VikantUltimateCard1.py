@@ -13,26 +13,18 @@ class VikantUltimateCard1(Cards.Card.Card):
                 return False
         
         return True
-        
-    def _hex(self, i):
-        data = hex(i)[2:]
-        
-        if len(data) == 1:
-            data = "0"+data
-            
-        return data.upper()
-    
+
     def __init__(self):
         pass
-
-    def gcErease(self):
-        return "erase40" 
+  
+    def getName(self):
+        return "VikantUltimateCard1"
         
     def gcDump(self):
         
         data = []
-        #for i in range(0,16):
-        for i in range(0,1):
+        for i in range(0,16):
+        #for i in range(0,2):
             for j in range(0,256):
                 data.append( "bread "+ self._hex(i) +" "+ self._hex(j)    )
                 

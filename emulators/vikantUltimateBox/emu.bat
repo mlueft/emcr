@@ -1,3 +1,3 @@
-py main.py
+"C:\Program Files\Python27\python.exe" main.py
 
 pause

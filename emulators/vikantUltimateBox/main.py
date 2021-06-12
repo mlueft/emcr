@@ -4,6 +4,7 @@ import os
 LINE_ENDING = chr(13)+chr(10)
 TERMINATOR = chr(62)
 MEMORY_FILE =  "data.bin"
+PORT_IN = "com3"
 
 ##
 #
@@ -162,10 +163,10 @@ def parseCommand(s,cmd):
 #
 def main():
 
-    portIn  = "com11"
+    global PORT_IN
 
     port = serial.Serial(
-        portIn,
+        PORT_IN,
         115200,
         timeout=0,
         parity=serial.PARITY_EVEN,
@@ -173,17 +174,25 @@ def main():
     )
     
     cmd = []
+    i = 0
     while True:
+        i = i +1
+        if i > 5000000:
+            print("current data:" + str(len(cmd)) )
+            print( toString( cmd ))
+        
         for c in port.read():
             cmd.append(c)
             
             if (c == 13 and cmd[:3] != toAscii("bws")):
                 parseCommand(port, cmd)
                 cmd = []
+                i = 0
                 
             elif (cmd[:3] == toAscii("bws") and len(cmd) == 268):
                 parseCommand(port, cmd)
                 cmd = []
+                i = 0
             
     port.close()
 
